@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -56,7 +57,7 @@ public class EmployeeController {
 			obj.get().setEmployee_email(e.getEmployee_email());
 			obj.get().setEmployee_phoneNo(e.getEmployee_phoneNo());
 			obj.get().setEmployee_salary(e.getEmployee_salary());
-			return new ResponseEntity<>(obj.get(), HttpStatus.OK);
+			return new ResponseEntity<>(er.save(obj.get()), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
@@ -74,9 +75,14 @@ public class EmployeeController {
 	}
 
 	@GetMapping("/get/page")
-	public List<Employee> getByPages(@RequestParam int page) {
-		Pageable pag = PageRequest.of(page, 20, Direction.ASC);
-		return er.findAll(pag).toList();
+	public List<Employee> getByPages(@RequestParam int page,@RequestParam int size, @RequestParam String field ) {
+		Pageable pag = PageRequest.of(page, size, Direction.ASC,field);
+		Page<Employee> p = er.findAll(pag);
+		return p.getContent();
 	}
 
+	@GetMapping("/get/pages")
+	public Page<Employee> page(Pageable page){
+		return er.findAll(page);
+	}
 }
